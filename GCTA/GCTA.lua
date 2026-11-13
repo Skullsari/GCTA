@@ -104,7 +104,11 @@ end
 
 local function characterName(unit)
     local firstName, surname = UnitFullName(unit)
-    local name = GetUnitName and GetUnitName(unit)
+    local name
+    if GetUnitName then
+        local ok, formatted = pcall(GetUnitName, unit)
+        if ok then name = formatted end
+    end
     -- On Forever the second result of UnitFullName is the surname.
     if readable(firstName) and readable(surname)
         and (not readable(name) or name == firstName) then
@@ -116,17 +120,18 @@ end
 
 local function capture()
     if busy then return end
-    if InCombatLockdown() then
-        say("Capture disponible hors combat.")
+    local exists = UnitExists(target)
+    if issecretvalue and issecretvalue(exists) then
+        say("Capture impossible : WoW masque l’identité de la cible.")
         return
     end
-    if not UnitExists(target) then
+    if not exists then
         say("Cible un joueur.")
         return
     end
     local isPlayer = UnitIsPlayer(target)
     if issecretvalue and issecretvalue(isPlayer) then
-        say("Identité de la cible indisponible.")
+        say("Capture impossible : WoW masque l’identité de la cible.")
         return
     end
     if not isPlayer then
@@ -135,7 +140,7 @@ local function capture()
     end
     local name = characterName(target)
     if not name then
-        say("Nom de la cible indisponible.")
+        say("Capture impossible : le nom de la cible est indisponible dans WoW.")
         return
     end
     local race = UnitRace(target)
