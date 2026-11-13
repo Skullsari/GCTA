@@ -1,0 +1,17 @@
+Créer un webhook Discord pour GCTA
+
+1. Ouvre ton serveur Discord et crée un salon texte de test, par exemple #gcta-tests.
+2. Va dans Paramètres du serveur → Intégrations → Webhooks.
+3. Clique sur Nouveau webhook, nomme-le GCTA et sélectionne le salon de test.
+4. Clique sur Copier l’URL du webhook.
+5. Dans GCTA Companion, ouvre Réglages, colle l’URL, puis clique sur Ajouter
+   et Enregistrer. Pour un autre salon ou serveur, répète avec un autre webhook.
+6. Dans WoW, cible un joueur et clique sur l’orbe GCTA pour tester l’envoi.
+
+Il faut la permission Gérer les webhooks sur le serveur ou le salon.
+L’URL permet de publier dans le salon. Transmets-la en privé uniquement aux
+testeurs qui doivent publier. Si elle fuit, supprime le webhook et recrée-le.
+L’URL ne fait pas partie du ZIP.
+
+Aide Discord
+https://support.discord.com/hc/fr/articles/228383668
