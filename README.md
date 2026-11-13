@@ -12,6 +12,8 @@ Un clic sur l’orbe dans WoW publie la fiche du personnage ciblé dans Discord 
 
 ## Mettre à jour
 
+Pour diagnostiquer un envoi, fais un clic droit sur l’orbe Windows et coche **Activer les logs de diagnostic**, puis fais une nouvelle capture. **Ouvrir le journal** affiche le résultat du recadrage et le code HTTP renvoyé par Discord. Les logs sont désactivés à chaque lancement. Décocher l’option arrête l’enregistrement et conserve le journal déjà écrit.
+
 Télécharge le nouveau ZIP, décompresse-le dans un nouveau dossier et relance **Installer GCTA.cmd**. Accepte la mise à jour. Le dossier WoW, les webhooks, les options Windows et la position du bouton sont conservés. L’installateur te demande de quitter le compagnon s’il est déjà ouvert.
 
 ## Relancer ou configurer GCTA

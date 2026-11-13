@@ -230,7 +230,7 @@ static class Gcta
         }
     }
 
-    static async Task<bool> Send(string webhook, byte[] card)
+    static async Task<HttpStatusCode> Send(string webhook, byte[] card)
     {
         for (int attempt = 0; attempt < 2; attempt++)
         {
@@ -244,15 +244,15 @@ static class Gcta
                 using (var response = await Discord.PostAsync(webhook + "?wait=true", form))
                 {
                     if ((int)response.StatusCode != 429 || attempt != 0)
-                        return response.IsSuccessStatusCode;
+                        return response.StatusCode;
                     var retry = response.Headers.RetryAfter;
                     if (retry == null || !retry.Delta.HasValue || retry.Delta.Value.TotalSeconds > 60)
-                        return false;
+                        return response.StatusCode;
                     await Task.Delay(TimeSpan.FromMilliseconds(Math.Max(100, retry.Delta.Value.TotalMilliseconds)));
                 }
             }
         }
-        return false;
+        return (HttpStatusCode)429;
     }
 
     sealed class Companion : ApplicationContext
@@ -266,6 +266,8 @@ static class Gcta
         string[] webhooks = new string[0];
         bool working;
         bool paused;
+        bool logging;
+        readonly string logPath = Path.Combine(Local, "diagnostic.log");
 
         public Companion()
         {
@@ -289,6 +291,21 @@ static class Gcta
                 Status(paused ? "En pause." : "Prêt.", false);
             };
             menu.Items.Add(pauseItem);
+            var logItem = new ToolStripMenuItem("Activer les logs de diagnostic");
+            logItem.Click += delegate
+            {
+                logging = !logging;
+                logItem.Checked = logging;
+                if (logging) Log("Diagnostic activé. Dossier de captures présent : "
+                    + Directory.Exists(screenshots) + ". Destinations : " + webhooks.Length);
+            };
+            menu.Items.Add(logItem);
+            menu.Items.Add("Ouvrir le journal", null, delegate
+            {
+                if (File.Exists(logPath))
+                    System.Diagnostics.Process.Start("notepad.exe", "\"" + logPath + "\"");
+                else Status("Aucun journal enregistré.", true);
+            });
             menu.Items.Add("Ouvrir les captures", null, delegate
             {
                 if (Directory.Exists(screenshots)) System.Diagnostics.Process.Start("explorer.exe", "\"" + screenshots + "\"");
@@ -314,10 +331,7 @@ static class Gcta
         {
             if (!Directory.Exists(screenshots)) yield break;
             foreach (var file in new DirectoryInfo(screenshots).EnumerateFiles())
-            {
-                string ext = file.Extension.ToLowerInvariant();
-                if (ext == ".jpg" || ext == ".jpeg" || ext == ".png") yield return file;
-            }
+                yield return file;
         }
 
         void MarkExisting()
@@ -337,13 +351,31 @@ static class Gcta
                     long stamp = file.LastWriteTimeUtc.Ticks, previous;
                     if (seen.TryGetValue(file.FullName, out previous) && previous == stamp) continue;
                     if (DateTime.UtcNow - file.LastWriteTimeUtc < TimeSpan.FromSeconds(1)) continue;
+                    string extension = file.Extension.ToLowerInvariant();
+                    if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+                    {
+                        seen[file.FullName] = stamp;
+                        Log("Fichier ignoré : format non pris en charge.");
+                        continue;
+                    }
                     byte[] card;
                     try { card = await Task.Run(() => Extract(file.FullName)); }
                     catch (IOException) { continue; }
-                    catch (ArgumentException) { card = null; }
+                    catch (ArgumentException)
+                    {
+                        Log("Capture illisible.");
+                        seen[file.FullName] = stamp;
+                        continue;
+                    }
                     seen[file.FullName] = stamp;
-                    if (card == null || paused) continue;
+                    if (card == null)
+                    {
+                        Log("Capture lue, carte GCTA non reconnue.");
+                        continue;
+                    }
+                    if (paused) continue;
                     var destinations = webhooks;
+                    Log("Carte recadrée. Destinations : " + destinations.Length);
                     if (destinations.Length == 0)
                     {
                         File.WriteAllBytes(Path.Combine(Local, "Derniere-carte.png"), card);
@@ -354,9 +386,22 @@ static class Gcta
                     for (int i = 0; i < destinations.Length; i++)
                     {
                         bool sent;
-                        try { sent = await Send(destinations[i], card); }
-                        catch (HttpRequestException) { sent = false; }
-                        catch (TaskCanceledException) { sent = false; }
+                        try
+                        {
+                            int status = (int)await Send(destinations[i], card);
+                            sent = status >= 200 && status < 300;
+                            Log("Destination " + (i + 1) + " : HTTP " + status);
+                        }
+                        catch (HttpRequestException)
+                        {
+                            sent = false;
+                            Log("Destination " + (i + 1) + " : erreur réseau.");
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            sent = false;
+                            Log("Destination " + (i + 1) + " : délai d’envoi dépassé.");
+                        }
                         if (!sent) failed.Add((i + 1).ToString());
                     }
                     Status(failed.Count == 0 ? "Carte publiée dans " + destinations.Length + " salon(s)."
@@ -365,9 +410,24 @@ static class Gcta
             }
             catch (Exception ex)
             {
+                Log("Erreur de traitement : " + ex.GetType().Name);
                 Status("Erreur de capture : " + ex.GetType().Name, false);
             }
             finally { working = false; }
+        }
+
+        void Log(string message)
+        {
+            if (!logging) return;
+            try
+            {
+                var journal = new FileInfo(logPath);
+                if (journal.Exists && journal.Length >= 256 * 1024)
+                    File.Delete(logPath);
+                File.AppendAllText(logPath, DateTimeOffset.Now.ToString("o") + " " + message + Environment.NewLine);
+            }
+            catch (IOException) { Status("Impossible d’écrire le journal.", true); }
+            catch (UnauthorizedAccessException) { Status("Impossible d’écrire le journal.", true); }
         }
 
         void Status(string text, bool show)
