@@ -199,20 +199,15 @@ static class Gcta
     {
         if (cx + dx >= image.Width || cy + dy >= image.Height || cx - dx < 0 || cy - dy < 0)
             return false;
-        return Match(image.GetPixel(cx - dx, cy - dy), true, false, true)
-            && Match(image.GetPixel(cx + dx, cy - dy), false, true, true)
-            && Match(image.GetPixel(cx - dx, cy + dy), true, true, false)
-            && Match(image.GetPixel(cx + dx, cy + dy), false, true, false);
-    }
-
-    static bool Match(Color color, bool red, bool green, bool blue)
-    {
-        return Channel(color.R, red) && Channel(color.G, green) && Channel(color.B, blue);
-    }
-
-    static bool Channel(int value, bool high)
-    {
-        return high ? value > 195 : value < 80;
+        var magenta = image.GetPixel(cx - dx, cy - dy);
+        var cyan = image.GetPixel(cx + dx, cy - dy);
+        var yellow = image.GetPixel(cx - dx, cy + dy);
+        var green = image.GetPixel(cx + dx, cy + dy);
+        // WoW captures can mute the colors. Check their pattern and contrast
+        // across all four corners at each sample, without fixed RGB levels.
+        return Math.Min(magenta.R, yellow.R) - Math.Max(cyan.R, green.R) >= 12
+            && Math.Min(cyan.G, Math.Min(yellow.G, green.G)) - magenta.G >= 25
+            && Math.Min(magenta.B, cyan.B) - Math.Max(yellow.B, green.B) >= 25;
     }
 
     static byte[] Extract(string path)
