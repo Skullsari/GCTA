@@ -1,0 +1,7 @@
+## Interface: 16001
+## Title: GCTA - Gotta Catch Them All
+## Notes: Capture de fiches de joueurs pour Discord
+## Version: 0.1.8
+## SavedVariables: GCTAPrefs
+
+GCTA.lua
