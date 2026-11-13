@@ -19,3 +19,16 @@ Télécharge le nouveau ZIP, décompresse-le dans un nouveau dossier et relance 
 Cherche **GCTA Companion** dans le menu Démarrer. Pour modifier les webhooks, fais un clic droit sur l’orbe près de l’horloge et ouvre **Réglages**. Consulte la [fiche de création d’un webhook](Creer-un-webhook-Discord.txt) si tu configures un salon.
 
 Si Defender bloque un fichier, garde la protection active et transmets le nom de la détection à la personne qui t’a partagé GCTA.
+
+
+## Créer un webhook Discord
+
+Il te faut la permission **Gérer les webhooks** sur le salon ou le serveur.
+
+1. Dans Discord, ouvre **Paramètres du serveur → Intégrations → Webhooks**.
+2. Clique sur **Nouveau webhook**, nomme-le **GCTA** et sélectionne le salon qui recevra les captures, par exemple `#gcta-tests`.
+3. Clique sur **Copier l’URL du webhook**.
+4. Dans **GCTA Companion → Réglages**, colle cette URL, puis clique sur **Ajouter** et **Enregistrer**. Répète l’opération pour chaque salon supplémentaire.
+5. Dans WoW Forever, cible un joueur et clique sur l’orbe GCTA. Vérifie que la carte apparaît dans le salon choisi.
+
+**Garde l’URL privée.** Toute personne qui la possède peut publier dans le salon. Si elle est divulguée, supprime le webhook dans Discord, recrée-le et remplace l’ancienne URL dans GCTA.
