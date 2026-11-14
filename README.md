@@ -20,8 +20,25 @@ Télécharge le nouveau **GCTA-Setup.exe**, ferme WoW et lance l’installateur.
 
 Cherche **GCTA Companion** dans le menu Démarrer. Pour modifier les webhooks, fais un clic droit sur l’orbe près de l’horloge et ouvre **Réglages**. Consulte la [fiche de création d’un webhook](Creer-un-webhook-Discord.txt) si tu configures un salon.
 
-Si Defender bloque un fichier, garde la protection active et transmets le nom de la détection à la personne qui t’a partagé GCTA.
+## Alertes SmartScreen et antivirus
 
+### SmartScreen affiche « Windows a protégé votre ordinateur »
+
+Cette alerte peut apparaître parce que l’installateur GCTA est non signé et que sa réputation est encore inconnue. Télécharge **GCTA-Setup.exe** depuis la [préversion officielle v0.1.10-rc.1](https://github.com/Skullsari/GCTA/releases/tag/v0.1.10-rc.1). Ouvre PowerShell dans le dossier du fichier pour vérifier son empreinte.
+
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath '.\GCTA-Setup.exe'
+```
+
+Pour **v0.1.10-rc.1**, le résultat attendu est `7926D61E8D2CD930D7D04DC5E3E8E15751A1C7D37E033441239CD60E25043FDC`. Cette empreinte vérifie que le fichier correspond à celui publié sur GitHub.
+
+Si l’empreinte correspond et que SmartScreen affiche uniquement un avertissement d’application inconnue, tu peux choisir **Informations complémentaires → Exécuter quand même**, si Windows propose cette option. [Documentation SmartScreen](https://learn.microsoft.com/fr-fr/windows/apps/package-and-deploy/smartscreen-reputation)
+
+### Defender détecte ou met en quarantaine un fichier
+
+Dans **Sécurité Windows → Protection contre les virus et menaces → Historique de protection**, relève le nom de la détection et le nom du fichier, puis transmets-les au mainteneur de GCTA. Garde le fichier en quarantaine tant que la détection reste inexpliquée.
+
+Si le faux positif est confirmé pour l’installateur, tu peux l’exclure temporairement via **Sécurité Windows → Protection contre les virus et menaces → Gérer les paramètres → Ajouter ou supprimer des exclusions → Ajouter une exclusion → Fichier**. Sélectionne uniquement **GCTA-Setup.exe**, garde la protection en temps réel active et retire l’exclusion après l’installation. [Documentation Microsoft sur les exclusions](https://support.microsoft.com/en-us/defender/antivirus-and-antimalware-software-faq)
 
 ## Créer un webhook Discord
 
