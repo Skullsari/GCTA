@@ -4,8 +4,8 @@ Un clic sur l’orbe dans WoW publie la fiche du personnage ciblé dans Discord 
 
 ## Installer sur Windows
 
-1. Sur GitHub, clique sur **Code → Download ZIP**, puis décompresse l’archive.
-2. Ferme WoW et double-clique sur **Installer GCTA.cmd** dans le dossier extrait. Le script compile le compagnon sur ton PC avec le compilateur .NET Framework de Windows. Git et Visual Studio ne sont pas nécessaires.
+1. Dans les [releases GitHub](https://github.com/Skullsari/GCTA/releases), télécharge **GCTA-Setup.exe**.
+2. Ferme WoW et double-clique sur **GCTA-Setup.exe**. L’installateur contient le compagnon et les fichiers de l’addon.
 3. Choisis le dossier **World of Warcraft** ou **`_forever_`**.
 4. Dans **Réglages**, colle l’URL du webhook reçue en privé, clique sur **Ajouter**, puis **Enregistrer**. Tu peux ajouter plusieurs destinations et activer le démarrage avec Windows.
 5. Lance WoW Forever, cible un joueur et clique sur l’orbe GCTA. **Maj + glisser** déplace le bouton.
@@ -14,7 +14,7 @@ Un clic sur l’orbe dans WoW publie la fiche du personnage ciblé dans Discord 
 
 Pour diagnostiquer un envoi, fais un clic droit sur l’orbe Windows et coche **Activer les logs de diagnostic**, puis fais une nouvelle capture. **Ouvrir le journal** affiche le résultat du recadrage et le code HTTP renvoyé par Discord. Les logs sont désactivés à chaque lancement. Décocher l’option arrête l’enregistrement et conserve le journal déjà écrit.
 
-Télécharge le nouveau ZIP, décompresse-le dans un nouveau dossier et relance **Installer GCTA.cmd**. Accepte la mise à jour. Le dossier WoW, les webhooks, les options Windows et la position du bouton sont conservés. L’installateur te demande de quitter le compagnon s’il est déjà ouvert.
+Télécharge le nouveau **GCTA-Setup.exe**, ferme WoW et lance l’installateur. Accepte la mise à jour. Le dossier WoW, les webhooks, les options Windows et la position du bouton sont conservés. L’installateur te demande de quitter le compagnon s’il est déjà ouvert.
 
 ## Relancer ou configurer GCTA
 

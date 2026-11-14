@@ -60,7 +60,9 @@ static class Gcta
                 SelfTest();
                 return;
             }
-            if (args.Length > 0 && args[0] == "--install")
+            var executable = Assembly.GetExecutingAssembly().Location;
+            if (!string.Equals(executable, InstalledExe, StringComparison.OrdinalIgnoreCase)
+                || (args.Length > 0 && args[0] == "--install"))
             {
                 Install();
                 return;
@@ -147,22 +149,36 @@ static class Gcta
 
     static void InstallFiles(string game, string gamePathFile)
     {
-        var source = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var assembly = Assembly.GetExecutingAssembly();
+        var source = Path.GetDirectoryName(assembly.Location);
         var files = new[] { "GCTA.toc", "GCTA.lua", "Orb.tga" };
+        var contents = new Dictionary<string, byte[]>();
         foreach (var file in files)
-            if (!File.Exists(Path.Combine(source, "GCTA", file)))
-                throw new FileNotFoundException();
+        {
+            using (var resource = assembly.GetManifestResourceStream("GCTA." + file))
+            {
+                if (resource == null)
+                {
+                    contents.Add(file, File.ReadAllBytes(Path.Combine(source, "GCTA", file)));
+                    continue;
+                }
+                using (var data = new MemoryStream())
+                {
+                    resource.CopyTo(data);
+                    contents.Add(file, data.ToArray());
+                }
+            }
+        }
         Directory.CreateDirectory(Local);
         var addon = Path.Combine(game, "Interface", "AddOns", "GCTA");
         Directory.CreateDirectory(addon);
         foreach (var file in files)
-            File.Copy(Path.Combine(source, "GCTA", file), Path.Combine(addon, file), true);
-        File.Copy(Assembly.GetExecutingAssembly().Location, InstalledExe, true);
+            File.WriteAllBytes(Path.Combine(addon, file), contents[file]);
+        if (!string.Equals(assembly.Location, InstalledExe, StringComparison.OrdinalIgnoreCase))
+            File.Copy(assembly.Location, InstalledExe, true);
         if (!File.Exists(gamePathFile) || File.ReadAllText(gamePathFile).Trim() != game)
             File.WriteAllText(gamePathFile, game);
-        var launcher = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "GCTA Companion.cmd");
-        if (!File.Exists(launcher))
-            File.WriteAllText(launcher, "@echo off\r\nstart \"\" \"%LOCALAPPDATA%\\GCTA\\GCTA.exe\"\r\n", Encoding.ASCII);
+        SetShortcut(ShortcutPath(Environment.SpecialFolder.Programs), true);
     }
 
     static bool ValidWebhook(string value)
