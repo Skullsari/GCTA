@@ -20,8 +20,11 @@ Télécharge le nouveau ZIP, décompresse-le dans un nouveau dossier et relance 
 
 Cherche **GCTA Companion** dans le menu Démarrer. Pour modifier les webhooks, fais un clic droit sur l’orbe près de l’horloge et ouvre **Réglages**. Consulte la [fiche de création d’un webhook](Creer-un-webhook-Discord.txt) si tu configures un salon.
 
-Si Defender bloque un fichier, garde la protection active et transmets le nom de la détection à la personne qui t’a partagé GCTA.
+## Alertes SmartScreen et antivirus
 
+Pour l’installateur précompilé **GCTA-Setup.exe**, consulte le [guide SmartScreen et antivirus](https://github.com/Skullsari/GCTA/tree/installateur-exe#alertes-smartscreen-et-antivirus). Il indique comment vérifier le fichier téléchargé et quoi faire selon le message de Windows.
+
+Si Defender met un fichier en quarantaine, relève le nom du fichier et de la détection dans **Sécurité Windows → Protection contre les virus et menaces → Historique de protection**, puis transmets-les au mainteneur de GCTA.
 
 ## Créer un webhook Discord
 
