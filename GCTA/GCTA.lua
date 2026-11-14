@@ -73,7 +73,8 @@ local function label(template, y, align)
     return item
 end
 
-local nameLabel = label("GameFontNormalHuge", -21)
+local nameTop = -17
+local nameLabel = label("GameFontNormalHuge", nameTop)
 local nativeFont = nameLabel:GetFont()
 local titleFont = "Fonts\\FRIZQT__.TTF"
 local titleSize = 33
@@ -85,6 +86,11 @@ nameLabel:SetMaxLines(2)
 
 local detailsLabel = label("GameFontHighlight", -62)
 detailsLabel:SetTextColor(0.91, 0.87, 0.79)
+local guildLabel = label("GameFontHighlight", -55)
+local guildFont, detailsSize, guildFlags = guildLabel:GetFont()
+guildLabel:SetFont(guildFont, detailsSize + 3, guildFlags)
+guildLabel:SetMaxLines(1)
+guildLabel:SetTextColor(0.93, 0.78, 0.52)
 local hunterLabel = label("GameFontHighlightSmall", -109, "RIGHT")
 local hunterFont, hunterSize, hunterFlags = hunterLabel:GetFont()
 hunterLabel:SetFont(hunterFont, hunterSize + 2, hunterFlags)
@@ -151,8 +157,18 @@ local function capture()
         if nameLabel:GetUnboundedStringWidth() <= nameLabel:GetWidth() then break end
         nameLabel:SetFont(titleFont, size)
     end
-    detailsLabel:SetPoint("TOPLEFT", 144, -21 - nameLabel:GetStringHeight() - 5)
-    detailsLabel:SetPoint("TOPRIGHT", -19, -21 - nameLabel:GetStringHeight() - 5)
+    local guildOk, guild = pcall(GetGuildInfo, target)
+    local showGuild = guildOk and readable(guild)
+    guildLabel:SetShown(showGuild)
+    local detailsTop = nameTop - nameLabel:GetStringHeight() - 5
+    if showGuild then
+        guildLabel:SetText((guild:gsub("|", "||")))
+        guildLabel:SetPoint("TOPLEFT", 144, detailsTop)
+        guildLabel:SetPoint("TOPRIGHT", -19, detailsTop)
+        detailsTop = detailsTop - guildLabel:GetStringHeight() - 4
+    end
+    detailsLabel:SetPoint("TOPLEFT", 144, detailsTop)
+    detailsLabel:SetPoint("TOPRIGHT", -19, detailsTop)
     detailsLabel:SetText((readable(class) and class or "Classe inconnue")
         .. "  ·  " .. (readable(race) and race or "Race inconnue"))
     hunterLabel:SetText("Capturé par " .. (characterName("player") or "un joueur inconnu"))
